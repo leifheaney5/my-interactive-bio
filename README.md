@@ -1,3 +1,7 @@
+# Leif Heaney's Interactive Bio
+### Last Updated: 2025-08-22
+### https://leifheaney5.github.io/my-interactive-bio/
+
 An interactive biography showcasing skills and technology stack through D3.js sunburst visualizations.
 
 ### Features
