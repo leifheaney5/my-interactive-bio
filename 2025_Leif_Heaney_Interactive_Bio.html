@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Leif Heaney's Interactive Bio (Responsive Fixed Labels)</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  body { font-family:'Courier New',monospace; margin:2rem; color:#333; background:#fff; }
+  h1,h2 { color:#000; font-weight:bold; }
+  h1 { font-size:24px; text-align:center; }
+  h3 { font-size:16px; text-align:center; }
+  a { color:#6a0dad; text-decoration:none; }
+
+  .container { display:flex; flex-wrap:wrap; gap:2rem; justify-content:space-between; }
+  .left,.right { flex:1; min-width:250px; }
+  .opportunities { padding:1rem; background:#f3f3f3; border:2px solid #6a0dad; }
+
+  /* Sunburst panels */
+  .sunbursts-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:2.5rem;
+    justify-content:center;
+    align-items:flex-start;
+    margin-top:2.5rem;
+  }
+  .sunburst-panel {
+    flex:1 1 760px;
+    max-width:1200px;
+    position:relative;
+    background:#fafafa;
+    border:2px solid #ddd;
+    border-radius:18px;
+    padding:1.25rem 1.75rem 3.75rem;
+    box-sizing:border-box;
+  }
+  .sunburst-panel h2 {
+    text-align:center;
+    margin:0 0 .75rem;
+    font-size:1.55rem;
+  }
+
+  .chart-wrapper {
+    position:relative;
+    width:100%;
+    /* allow natural expansion; the svg will size itself via viewBox scaling */
+    overflow:hidden;
+    outline:2px solid transparent;
+    border-radius:12px;
+    transition:outline-color .25s;
+    margin:0 auto;
+  }
+  .chart-wrapper.hovered { outline-color:#6a0dad; }
+  .chart-wrapper svg { width:100%; height:auto; display:block; }
+
+  /* Tooltip */
+  .tooltip {
+    position:absolute;
+    padding:6px 8px;
+    background:#fff;
+    border:1px solid #ccc;
+    border-radius:4px;
+    pointer-events:none;
+    font:12px sans-serif;
+    box-shadow:0 0 5px rgba(0,0,0,.15);
+    opacity:0;
+    z-index:10;
+  }
+
+  /* Labels (restored original sizing) */
+  .label-parent {
+    font-size:12px;
+    fill:#fff;
+    font-weight:bold;
+    text-anchor:middle;
+    pointer-events:none;
+    text-shadow:0 0 2px rgba(0,0,0,0.7);
+  }
+  .label-child {
+    font-size:8px;
+    fill:#fff;
+    text-anchor:middle;
+    pointer-events:none;
+    text-shadow:0 0 1px rgba(0,0,0,0.7);
+  }
+
+  /* Legend */
+  .legend {
+    margin:1rem auto 0;
+    font-size:.75rem;
+    line-height:1.2;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:.4rem;
+    max-width:1100px;
+  }
+  .legend span { display:flex; align-items:center; gap:.4rem; }
+  .swatch { width:14px; height:14px; border-radius:3px; display:inline-block; }
+
+  /* Zoom buttons */
+  .zoom-controls {
+    position:absolute;
+    bottom:1rem;
+    right:1rem;
+    display:flex;
+    flex-direction:column;
+    gap:.45rem;
+    z-index:5;
+  }
+  .zoom-btn {
+    width:36px;
+    height:36px;
+    border:none;
+    border-radius:7px;
+    background:#6a0dad;
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    box-shadow:0 2px 4px rgba(0,0,0,.25);
+    transition:background .2s;
+  }
+  .zoom-btn:hover { background:#562184; }
+  .zoom-btn:active { transform:translateY(1px); }
+  .zoom-btn:focus-visible { outline:2px solid #222; outline-offset:2px; }
+
+  @media (max-width:1400px){
+    .sunburst-panel { flex:1 1 620px; }
+  }
+  @media (max-width:900px){
+    .sunburst-panel { flex:1 1 100%; }
+  }
+  /* Unified top info styles */
+.top-info-wrapper {
+  display:flex;
+  justify-content:center;
+  margin-top:2rem;
+}
+
+.top-info-box {
+  flex:1 1 760px;
+  max-width:1200px;
+  background:#f3f3f3;
+  border:2px solid #6a0dad;
+  border-radius:18px;
+  padding:1.75rem 2rem;
+  box-sizing:border-box;
+}
+
+.top-info-cols {
+  display:flex;
+  flex-wrap:wrap;
+  gap:2.5rem;
+}
+
+.top-info-cols .col {
+  flex:1 1 360px;
+  min-width:280px;
+}
+
+.top-info-cols h2 { margin-top:0; }
+
+.opps-list {
+  margin:.4rem 0 0;
+  padding-left:1.15rem;
+  list-style:disc;
+  columns:2;
+  column-gap:2rem;
+  max-width:700px;
+}
+
+@media (max-width:1400px){
+  .top-info-box { flex:1 1 620px; }
+}
+@media (max-width:900px){
+  .top-info-box { flex:1 1 100%; max-width:100%; }
+  .opps-list { columns:1; }
+}
+
+</style>
+
+</head>
+<body>
+  <h1>Leif Heaney - Interactive Bio</h1>
+  <h3>Last Updated: 2025-07-19</h3>
+
+  <!-- Unified top info box (two columns) -->
+<div class="top-info-wrapper">
+  <div class="top-info-box">
+    <div class="top-info-cols">
+      <div class="col col-left">
+        <h2>Contact Information</h2>
+        <p><strong>Email:</strong> <a href="mailto:leif@leifheaney.com">leif@leifheaney.com</a></p>
+        <p><strong>Phone:</strong> 301-660-0074</p>
+
+        <h2>Professional Links</h2>
+        <p><a href="https://leifheaney.com/resume/">Resume</a></p>
+        <p><a href="https://www.linkedin.com/in/leifheaney/">LinkedIn</a></p>
+        <p><a href="https://leifheaney.com">Website</a></p>
+
+        <h2>Schedule a Meeting</h2>
+        <p><a href="https://fantastical.app/leifheaney/meet-with-leif">Access my Calendar</a></p>
+      </div>
+
+      <div class="col col-right">
+        <h2>Professional Summary</h2>
+        <p>AI/ML & Systems Engineer specializing in applied AI, data analytics, and MBSE. I build intelligent systems that transform complex data into actionable insights enabling confident data-driven decision-making.</p>
+
+        <h2>Seeking Remote Opportunities In:</h2>
+        <ul class="opps-list">
+          <li>AI/ML Engineering</li>
+          <li>Data Science & Analytics</li>
+          <li>Education Technology</li>
+          <li>Software Engineering</li>
+          <li>Systems Engineering</li>
+          <li>Emerging Technologies</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="sunbursts-row">
+    <div class="sunburst-panel" id="panel-skills">
+      <h2>Skills Breakdown (Conceptual Domains)</h2>
+      <div class="chart-wrapper" id="skills-wrapper">
+        <div id="skills-sunburst"></div>
+        <div class="zoom-controls">
+          <button class="zoom-btn" data-action="zoom-in" title="Zoom In">+</button>
+          <button class="zoom-btn" data-action="zoom-out" title="Zoom Out">−</button>
+            <button class="zoom-btn" data-action="reset" title="Reset Zoom">⟳</button>
+        </div>
+      </div>
+      <div id="conceptual-legend" class="legend"></div>
+    </div>
+
+    <div class="sunburst-panel" id="panel-tech">
+      <h2>Technology Stack Breakdown</h2>
+      <div class="chart-wrapper" id="tech-wrapper">
+        <div id="techstack-sunburst"></div>
+        <div class="zoom-controls">
+          <button class="zoom-btn" data-action="zoom-in" title="Zoom In">+</button>
+          <button class="zoom-btn" data-action="zoom-out" title="Zoom Out">−</button>
+          <button class="zoom-btn" data-action="reset" title="Reset Zoom">⟳</button>
+        </div>
+      </div>
+      <div id="tech-legend" class="legend"></div>
+    </div>
+  </div>
+
+  <div class="tooltip"></div>
+
+<script>
+/* ======================== DATA ========================= */
+const conceptualData = {
+  name: "Skills",
+  children: [
+    { name: "Artificial Intelligence", children: [
+      { name:"Applied AI",value:1 }, { name:"AI as a Service",value:1 }, { name:"Multimodal AI",value:1 },
+      { name:"Multiagent Systems",value:1 }, { name:"Distributed AI",value:1 }, { name:"Generative AI",value:1 },
+      { name:"LLMs",value:1 }, { name:"RAG",value:1 }, { name:"RL",value:1 }, { name:"ML",value:1 },
+      { name:"DL",value:1 }, { name:"GANs (Synthetic Data)",value:1 }, { name:"Knowledge Graphs",value:1 },
+      { name:"GNNs",value:1 }, { name:"Federated Learning",value:1 }, { name:"MLOps",value:1 },
+      { name:"Explainable AI",value:1 }, { name:"Human Machine Teaming",value:1 }, { name:"AI Ethics",value:1 },
+      { name:"AI Governance",value:1 }
+    ]},
+    { name: "Data Science", children: [
+      { name:"Data Engineering",value:1 }, { name:"Data Architecture",value:1 }, { name:"Predictive Analytics",value:1 },
+      { name:"Modeling & Forecasting",value:1 }, { name:"Simulation Modeling",value:1 }, { name:"Complex Adaptive Systems",value:1 },
+      { name:"EDA",value:1 }, { name:"ETL Pipelines",value:1 }, { name:"Big Data",value:1 },
+      { name:"Data Visualization",value:1 }, { name:"Geospatial Analytics",value:1 }, { name:"Data Mining",value:1 },
+      { name:"Statistical Analysis",value:1 }, { name:"Anomaly Detection",value:1 }, { name:"Data Quality & Governance",value:1 },
+      { name:"Data Ethics",value:1 }, { name:"Data Management",value:1 }, { name:"Learning Analytics",value:1 }
+    ]},
+    { name: "Systems Engineering", children: [
+      { name:"MBSE",value:1 }, { name:"SoSE",value:1 }, { name:"Systems Thinking",value:1 }, { name:"Systems Architecture",value:1 },
+      { name:"Solutions Architecture",value:1 }, { name:"Enterprise Architecture",value:1 }, { name:"SysML",value:1 },
+      { name:"UML",value:1 }, { name:"UPDM",value:1 }, { name:"DoDAF",value:1 }, { name:"UAF",value:1 }, { name:"ZTA",value:1 },
+      { name:"Requirements Engineering",value:1 }, { name:"Configuration Management",value:1 }, { name:"Systems Integration",value:1 },
+      { name:"Verification & Validation",value:1 }, { name:"Test & Evaluation",value:1 }, { name:"Digital Engineering",value:1 },
+      { name:"Digital Twin",value:1 }, { name:"Model-Based Design",value:1 }, { name:"ConOps",value:1 }, { name:"Risk Analysis",value:1 },
+      { name:"Threat Assessment",value:1 }, { name:"Zero Trust",value:1 }, { name:"DevOps",value:1 }, { name:"CI/CD",value:1 },
+      { name:"IaC",value:1 }, { name:"System Lifecycle Mgmt",value:1 }, { name:"Risk Management",value:1 }
+    ]},
+    { name: "Software Engineering", children: [
+      { name:"Cloud-Native Apps",value:1 }, { name:"Fullstack Development",value:1 }, { name:"Business Intelligence",value:1 },
+      { name:"Automation & Scripting",value:1 }, { name:"RPA",value:1 }, { name:"BPA",value:1 }, { name:"Algorithm Design",value:1 },
+      { name:"API Interoperability",value:1 }, { name:"Human-Centered Design",value:1 }, { name:"UI/UX",value:1 },
+      { name:"Agile Methodology",value:1 }, { name:"Embedded Systems",value:1 }, { name:"Software Testing",value:1 },
+      { name:"Cloud Computing",value:1 }
+    ]},
+    { name: "Higher Education", children: [
+      { name:"Learning Management System",value:1 }, { name:"Instructional Technology",value:1 }, { name:"Blended Learning",value:1 },
+      { name:"Assessment & Evaluation",value:1 }, { name:"Instructional Design",value:1 }, { name:"eLearning",value:1 },
+      { name:"EdTech",value:1 }, { name:"Curriculum Development",value:1 }, { name:"Online Learning",value:1 },
+      { name:"Asynchronous Instruction",value:1 }
+    ]}
+  ]
+};
+
+const techStackData = {
+  name: "Tech Stack",
+  children: [
+    { name:"Cloud Platforms", children:[
+      { name:"AWS",value:1 }, { name:"Azure",value:1 }, { name:"GCP",value:1 }, { name:"Oracle Cloud",value:1 },
+      { name:"Databricks",value:1 }, { name:"Hugging Face Hub",value:1 }
+    ]},
+    { name:"Containerization & Orchestration", children:[
+      { name:"Docker",value:1 }, { name:"Kubernetes",value:1 }, { name:"Kubeflow",value:1 }
+    ]},
+    { name:"Develop & Deploy", children:[
+      { name:"LangChain",value:1 }, { name:"MLflow",value:1 }, { name:"Render",value:1 }, { name:"Terraform",value:1 }
+    ]},
+    { name:"Programming Languages", children:[
+      { name:"Python",value:1 }, { name:"Java",value:1 }, { name:"JavaScript",value:1 }, { name:"TypeScript",value:1 },
+      { name:"R",value:1 }, { name:"PHP",value:1 }
+    ]},
+    { name:"Frameworks & Libraries", children:[
+      { name:"Flask",value:1 }, { name:"FastAPI",value:1 }, { name:"GraphQL",value:1 }, { name:"D3.js",value:1 },
+      { name:"Vue.js",value:1 }, { name:"React.js",value:1 }, { name:"Spotipy",value:1 }, { name:"Plotly",value:1 },
+      { name:"Dash",value:1 }, { name:"Keras",value:1 }, { name:"PyTorch",value:1 }, { name:"TensorFlow",value:1 },
+      { name:"Scikit-learn",value:1 }, { name:"NumPy",value:1 }, { name:"pandas",value:1 }, { name:"SciPy",value:1 },
+      { name:"Seaborn",value:1 }, { name:"spaCy",value:1 }, { name:"OpenCV",value:1 }
+    ]},
+    { name:"R Libraries", children:[
+      { name:"RShiny",value:1 }, { name:"tidyverse",value:1 }, { name:"XGBoost",value:1 }, { name:"dplyr",value:1 },
+      { name:"ggplot2",value:1 }, { name:"httr",value:1 }, { name:"purrr",value:1 }, { name:"rvest",value:1 },
+      { name:"tidyr",value:1 }, { name:"tidymodels",value:1 }
+    ]},
+    { name:"APIs & Tools", children:[
+      { name:"Postman",value:1 }, { name:"Replicate",value:1 }, { name:"REST",value:1 }
+    ]},
+    { name:"CI/CD & Automation", children:[
+      { name:"GitHub Actions",value:1 }, { name:"Jenkins",value:1 }, { name:"Bash",value:1 }, { name:"PowerShell",value:1 }
+    ]},
+    { name:"Databases & BI", children:[
+      { name:"SQL",value:1 }, { name:"MySQL",value:1 }, { name:"MongoDB",value:1 }, { name:"Tableau",value:1 },
+      { name:"PowerBI",value:1 }, { name:"SAP",value:1 }, { name:"UiPath",value:1 }
+    ]},
+    { name:"Modeling & Tools", children:[
+      { name:"SysML",value:1 }, { name:"UML",value:1 }, { name:"DoDAF",value:1 }, { name:"UAF",value:1 },
+      { name:"UPDM",value:1 }, { name:"ZTA",value:1 }, { name:"Cameo",value:1 }, { name:"IBM DOORS",value:1 },
+      { name:"MagicDraw",value:1 }, { name:"QGIS",value:1 }, { name:"ArcGIS",value:1 }, { name:"GeoPandas",value:1 }
+    ]}
+  ]
+};
+
+/* ================ COLOR SCALES & LEGENDS ================ */
+const conceptualColor = d3.scaleOrdinal()
+  .domain(["Artificial Intelligence","Data Science","Systems Engineering","Software Engineering","Higher Education"])
+  .range(["#e74c3c","#8e44ad","#2980b9","#27ae60","#f39c12"]);
+
+const techColor = d3.scaleOrdinal()
+  .domain(techStackData.children.map(d => d.name))
+  .range(["#7f8c8d","#546e7a","#455a64","#37474f","#263238","#607d8b","#78909c","#90a4ae","#b0bec5","#546e7a"]);
+
+function buildLegend(containerSelector, scale) {
+  const wrap = d3.select(containerSelector);
+  const items = wrap.selectAll('span.legend-item')
+    .data(scale.domain(), d => d);
+  const enter = items.enter().append('span').attr('class','legend-item');
+  enter.append('span').attr('class','swatch').style('background', d => scale(d));
+  enter.append('span').text(d => d);
+  items.exit().remove();
+}
+buildLegend('#conceptual-legend', conceptualColor);
+buildLegend('#tech-legend', techColor);
+
+/* ================ RESPONSIVE SUNBURST ================ */
+function createSunburst({ data, mount, colorScale, levels=3, maxDiameter=1100 }) {
+  const container = document.querySelector(mount);
+  const tooltip = d3.select('.tooltip');
+
+  const root = d3.hierarchy(data).sum(d => d.children ? 0 : 1);
+  const partition = d3.partition();
+
+  let radius = 0;
+  let arc;
+  let allLeaves = [];
+
+  const svg = d3.select(mount).selectAll('svg').data([null]).join('svg');
+  const main = svg.selectAll('g.main').data([null]).join('g').attr('class','main');
+  const zoomLayer = main.selectAll('g.zoom-layer').data([null]).join('g').attr('class','zoom-layer');
+
+  function colorFor(d){
+    const primary = d.ancestors().find(a=>a.depth===1) || d;
+    const base = colorScale(primary.data.name) || '#888';
+    const c = d3.color(base);
+    if(c){
+      const k = (d.depth - 1) * 0.18;
+      c.r = Math.min(255, c.r + 255*k*0.35);
+      c.g = Math.min(255, c.g + 255*k*0.35);
+      c.b = Math.min(255, c.b + 255*k*0.35);
+      return c.formatHex();
+    }
+    return base;
+  }
+
+  function compute() {
+    const panelWidth = container.parentElement.getBoundingClientRect().width;
+    const diameter = Math.min(panelWidth - 40, maxDiameter);
+    radius = diameter / 2 * 0.95;
+    partition.size([2*Math.PI, levels])(root);
+    root.each(d => d.current = d);
+    arc = d3.arc()
+      .startAngle(d=>d.x0)
+      .endAngle(d=>d.x1)
+      .padAngle(0.004)
+      .padRadius(1)
+      .innerRadius(d=> d.y0/levels * radius)
+      .outerRadius(d=> d.y1/levels * radius);
+
+    svg.attr('viewBox', [-radius, -radius, radius*2, radius*2].join(' '));
+    main.attr('transform','translate(0,0)');
+    allLeaves = root.leaves();
+  }
+
+  function labelTransform(d){
+    const [x,y] = arc.centroid(d);
+    const angle = (d.x0 + d.x1)/2 * 180/Math.PI - 90;
+    return `translate(${x},${y}) rotate(${angle < 180 ? angle : angle - 180})`;
+  }
+
+  const minLeafArcPxBase = 11;
+
+  function render(){
+    compute();
+
+    const nodes = root.descendants().filter(d=>d.depth>0);
+
+    const seg = zoomLayer.selectAll('path.segment')
+      .data(nodes, d=>d.data.name + '|' + d.depth);
+
+    seg.enter().append('path')
+      .attr('class','segment')
+      .attr('fill',colorFor)
+      .on('mousemove',(event,d)=>{
+        const pct = d.children ? (d.leaves().length / allLeaves.length * 100)
+                               : (1 / allLeaves.length * 100);
+        tooltip.style('opacity',0.95)
+          .html(`<strong>${d.data.name}</strong><br>${pct.toFixed(1)}% of leaf skills`)
+          .style('left', (event.pageX + 8)+'px')
+          .style('top', (event.pageY - 28)+'px');
+      })
+      .on('mouseleave', ()=> tooltip.style('opacity',0))
+      .merge(seg)
+      .attr('d', d=>arc(d.current));
+
+    seg.exit().remove();
+
+    const parents = zoomLayer.selectAll('text.label-parent')
+      .data(root.descendants().filter(d=>d.depth===1), d=>d.data.name);
+
+    parents.enter().append('text')
+      .attr('class','label-parent')
+      .merge(parents)
+      .attr('transform', d=>`translate(${arc.centroid(d)})`)
+      .text(d=>d.data.name);
+
+    parents.exit().remove();
+
+    const leaves = zoomLayer.selectAll('text.label-child')
+      .data(allLeaves, d=>d.data.name);
+
+    leaves.enter().append('text')
+      .attr('class','label-child')
+      .merge(leaves)
+      .attr('transform', d=>labelTransform(d))
+      .text(d=>{
+        const arcLen = (d.x1 - d.x0) * radius;
+        return arcLen > minLeafArcPxBase ? d.data.name : '';
+      });
+
+    leaves.exit().remove();
+  }
+
+  render();
+
+  // Resize (debounced)
+  let resizeTimer;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(()=>{
+      render();
+      applyTransform(); // keep zoom state
+    },120);
+  });
+
+  /* ----- Zoom / Pan ----- */
+  const state = {
+    scale:1,
+    translate:{x:0,y:0},
+    minScale:0.5,
+    maxScale:5
+  };
+
+  function applyTransform(){
+    zoomLayer.attr('transform',
+      `translate(${state.translate.x},${state.translate.y}) scale(${state.scale})`);
+  }
+
+  const wrapEl = container.parentElement;
+  wrapEl.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.15 : 0.85;
+    const newScale = Math.min(state.maxScale, Math.max(state.minScale, state.scale * factor));
+
+    const rect = wrapEl.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const { clientX:mx, clientY:my } = e;
+    const scaleRatio = newScale / state.scale;
+
+    state.translate.x = (mx - cx) - scaleRatio*(mx - cx) + state.translate.x * scaleRatio;
+    state.translate.y = (my - cy) - scaleRatio*(my - cy) + state.translate.y * scaleRatio;
+    state.scale = newScale;
+    applyTransform();
+  }, { passive:false });
+
+  let dragging=false, dragStart, transStart;
+  wrapEl.addEventListener('mousedown', e=>{
+    dragging=true;
+    dragStart={x:e.clientX,y:e.clientY};
+    transStart={...state.translate};
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    state.translate.x = transStart.x + (e.clientX - dragStart.x);
+    state.translate.y = transStart.y + (e.clientY - dragStart.y);
+    applyTransform();
+  });
+  window.addEventListener('mouseup', ()=> dragging=false);
+
+  wrapEl.addEventListener('mouseenter', ()=> wrapEl.classList.add('hovered'));
+  wrapEl.addEventListener('mouseleave', ()=> wrapEl.classList.remove('hovered'));
+
+  function zoomIn(){ state.scale = Math.min(state.maxScale, state.scale*1.25); applyTransform(); }
+  function zoomOut(){ state.scale = Math.max(state.minScale, state.scale/1.25); applyTransform(); }
+  function resetZoom(){ state.scale=1; state.translate={x:0,y:0}; applyTransform(); }
+
+  return { zoomIn, zoomOut, resetZoom };
+}
+
+/* ================ BUILD BOTH CHARTS ================ */
+const skillsChart = createSunburst({
+  data: conceptualData,
+  mount: '#skills-sunburst',
+  colorScale: conceptualColor,
+  levels: 3,
+  maxDiameter: 1100
+});
+const techChart = createSunburst({
+  data: techStackData,
+  mount: '#techstack-sunburst',
+  colorScale: techColor,
+  levels: 3,
+  maxDiameter: 1100
+});
+
+/* ================ BUTTON HANDLERS ================ */
+document.querySelector('#skills-wrapper').addEventListener('click', e=>{
+  if(!e.target.matches('.zoom-btn')) return;
+  const act = e.target.dataset.action;
+  if(act==='zoom-in') skillsChart.zoomIn();
+  else if(act==='zoom-out') skillsChart.zoomOut();
+  else if(act==='reset') skillsChart.resetZoom();
+});
+
+document.querySelector('#tech-wrapper').addEventListener('click', e=>{
+  if(!e.target.matches('.zoom-btn')) return;
+  const act = e.target.dataset.action;
+  if(act==='zoom-in') techChart.zoomIn();
+  else if(act==='zoom-out') techChart.zoomOut();
+  else if(act==='reset') techChart.resetZoom();
+});
+</script>
+</body>
+</html>
