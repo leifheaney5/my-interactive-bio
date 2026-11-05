@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Leif Heaney's Interactive Bio (Responsive Fixed Labels)</title>
+<title>Leif Heaney | Interactive Bio</title>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
   body { font-family:'Courier New',monospace; margin:2rem; color:#333; background:#fff; }
@@ -27,6 +27,7 @@
   }
   .sunburst-panel {
     flex:1 1 760px;
+    min-width:0;
     max-width:1200px;
     position:relative;
     background:#fafafa;
@@ -186,7 +187,7 @@
 </head>
 <body>
   <h1>Leif Heaney - Interactive Bio</h1>
-  <h3>Last Updated: 2025-07-19</h3>
+  <h3>Last Updated: 2026-11-05</h3>
 
   <!-- Unified top info box (two columns) -->
 <div class="top-info-wrapper">
@@ -195,10 +196,10 @@
       <div class="col col-left">
         <h2>Contact Information</h2>
         <p><strong>Email:</strong> <a href="mailto:leif@leifheaney.com">leif@leifheaney.com</a></p>
-        <p><strong>Phone:</strong> 301-660-0074</p>
 
         <h2>Professional Links</h2>
         <p><a href="https://leifheaney.com/resume/">Resume</a></p>
+        <p><a href="https://leifheaney.com/Leif_Heaney_Resume.pdf">Resume (PDF)</a></p>
         <p><a href="https://www.linkedin.com/in/leifheaney/">LinkedIn</a></p>
         <p><a href="https://leifheaney.com">Website</a></p>
 
@@ -208,15 +209,15 @@
 
       <div class="col col-right">
         <h2>Professional Summary</h2>
-        <p>AI/ML & Systems Engineer specializing in applied AI, data analytics, and MBSE. I build intelligent systems that transform complex data into actionable insights enabling confident data-driven decision-making.</p>
+        <p>AI/ML and systems engineer who designs and ships production AI applications and model-based system architectures, with expertise spanning applied AI, systems engineering, data analytics, and software development. I build intelligent systems that transform complex data into actionable insights and confident decisions.</p>
 
         <h2>Seeking Remote Opportunities In:</h2>
         <ul class="opps-list">
           <li>AI/ML Engineering</li>
-          <li>Data Science & Analytics</li>
-          <li>Education Technology</li>
-          <li>Software Engineering</li>
           <li>Systems Engineering</li>
+          <li>Data Science & Analytics</li>
+          <li>Software Engineering</li>
+          <li>Education Technology</li>
           <li>Emerging Technologies</li>
         </ul>
       </div>
@@ -261,31 +262,34 @@ const conceptualData = {
   name: "Skills",
   children: [
     { name: "Artificial Intelligence", children: [
-      { name:"Applied AI",value:1 }, { name:"AI as a Service",value:1 }, { name:"Multimodal AI",value:1 },
+      { name:"Applied AI",value:1 }, { name:"Agentic AI",value:1 }, { name:"AI Orchestration",value:1 }, { name:"Multimodal AI",value:1 },
+      { name:"Computer Vision",value:1 }, { name:"OCR",value:1 }, { name:"Edge AI",value:1 },
       { name:"Multiagent Systems",value:1 }, { name:"Distributed AI",value:1 }, { name:"Generative AI",value:1 },
-      { name:"LLMs",value:1 }, { name:"RAG",value:1 }, { name:"RL",value:1 }, { name:"ML",value:1 },
-      { name:"DL",value:1 }, { name:"GANs (Synthetic Data)",value:1 }, { name:"Knowledge Graphs",value:1 },
+      { name:"LLMs",value:1 }, { name:"Local & Open-Source LLMs",value:1 }, { name:"Fine-Tuning",value:1 },
+      { name:"Prompt Engineering",value:1 }, { name:"RAG",value:1 }, { name:"GraphRAG",value:1 }, { name:"RL",value:1 }, { name:"ML",value:1 },
+      { name:"DL",value:1 }, { name:"GANs (Synthetic Data)",value:1 }, { name:"Knowledge Graphs",value:1 }, { name:"Knowledge Representation",value:1 },
       { name:"GNNs",value:1 }, { name:"Federated Learning",value:1 }, { name:"MLOps",value:1 },
       { name:"Explainable AI",value:1 }, { name:"Human Machine Teaming",value:1 }, { name:"AI Ethics",value:1 },
-      { name:"AI Governance",value:1 }
+      { name:"AI Governance",value:1 }, { name:"Responsible AI",value:1 }, { name:"AI Safety",value:1 }, { name:"Intelligent Automation",value:1 }
     ]},
     { name: "Data Science", children: [
       { name:"Data Engineering",value:1 }, { name:"Data Architecture",value:1 }, { name:"Predictive Analytics",value:1 },
       { name:"Modeling & Forecasting",value:1 }, { name:"Simulation Modeling",value:1 }, { name:"Complex Adaptive Systems",value:1 },
       { name:"EDA",value:1 }, { name:"ETL Pipelines",value:1 }, { name:"Big Data",value:1 },
-      { name:"Data Visualization",value:1 }, { name:"Geospatial Analytics",value:1 }, { name:"Data Mining",value:1 },
+      { name:"Data Visualization",value:1 }, { name:"Geospatial Analytics",value:1 }, { name:"GEOINT",value:1 }, { name:"Telemetry",value:1 }, { name:"Data Mining",value:1 },
       { name:"Statistical Analysis",value:1 }, { name:"Anomaly Detection",value:1 }, { name:"Data Quality & Governance",value:1 },
       { name:"Data Ethics",value:1 }, { name:"Data Management",value:1 }, { name:"Learning Analytics",value:1 }
     ]},
     { name: "Systems Engineering", children: [
       { name:"MBSE",value:1 }, { name:"SoSE",value:1 }, { name:"Systems Thinking",value:1 }, { name:"Systems Architecture",value:1 },
       { name:"Solutions Architecture",value:1 }, { name:"Enterprise Architecture",value:1 }, { name:"SysML",value:1 },
-      { name:"UML",value:1 }, { name:"UPDM",value:1 }, { name:"DoDAF",value:1 }, { name:"UAF",value:1 }, { name:"ZTA",value:1 },
+      { name:"UML",value:1 }, { name:"DoDAF",value:1 }, { name:"UAF",value:1 }, { name:"ZTA",value:1 },
       { name:"Requirements Engineering",value:1 }, { name:"Configuration Management",value:1 }, { name:"Systems Integration",value:1 },
       { name:"Verification & Validation",value:1 }, { name:"Test & Evaluation",value:1 }, { name:"Digital Engineering",value:1 },
-      { name:"Digital Twin",value:1 }, { name:"Model-Based Design",value:1 }, { name:"ConOps",value:1 }, { name:"Risk Analysis",value:1 },
+      { name:"Digital Threads",value:1 }, { name:"Digital Twin",value:1 }, { name:"Model-Based Design",value:1 }, { name:"ConOps",value:1 }, { name:"Risk Analysis",value:1 },
       { name:"Threat Assessment",value:1 }, { name:"Zero Trust",value:1 }, { name:"DevOps",value:1 }, { name:"CI/CD",value:1 },
-      { name:"IaC",value:1 }, { name:"System Lifecycle Mgmt",value:1 }, { name:"Risk Management",value:1 }
+      { name:"IaC",value:1 }, { name:"System Lifecycle Mgmt",value:1 }, { name:"Risk Management",value:1 },
+      { name:"Modeling & Simulation",value:1 }, { name:"Distributed Systems",value:1 }
     ]},
     { name: "Software Engineering", children: [
       { name:"Cloud-Native Apps",value:1 }, { name:"Fullstack Development",value:1 }, { name:"Business Intelligence",value:1 },
@@ -310,22 +314,37 @@ const techStackData = {
       { name:"AWS",value:1 }, { name:"Azure",value:1 }, { name:"GCP",value:1 }, { name:"Oracle Cloud",value:1 },
       { name:"Databricks",value:1 }, { name:"Hugging Face Hub",value:1 }
     ]},
-    { name:"Containerization & Orchestration", children:[
-      { name:"Docker",value:1 }, { name:"Kubernetes",value:1 }, { name:"Kubeflow",value:1 }
+    { name:"AWS Services", children:[
+      { name:"EC2",value:1 }, { name:"Elastic Beanstalk",value:1 }, { name:"RDS",value:1 }, { name:"S3",value:1 },
+      { name:"CloudFront",value:1 }, { name:"VPC",value:1 }, { name:"IAM",value:1 }, { name:"KMS",value:1 },
+      { name:"Secrets Manager",value:1 }, { name:"SSM",value:1 }, { name:"SQS",value:1 }, { name:"CloudWatch",value:1 },
+      { name:"CloudTrail",value:1 }, { name:"Security Hub",value:1 }, { name:"GuardDuty",value:1 }, { name:"Inspector",value:1 }
     ]},
-    { name:"Develop & Deploy", children:[
-      { name:"LangChain",value:1 }, { name:"MLflow",value:1 }, { name:"Render",value:1 }, { name:"Terraform",value:1 }
+    { name:"Containers & IaC", children:[
+      { name:"Docker",value:1 }, { name:"Kubernetes",value:1 }, { name:"Kubeflow",value:1 },
+      { name:"OpenTofu",value:1 }, { name:"Terraform",value:1 }
+    ]},
+    { name:"LLMs & Agents", children:[
+      { name:"Claude Code",value:1 }, { name:"Claude API",value:1 }, { name:"OpenAI API",value:1 }, { name:"Gemini API",value:1 },
+      { name:"Claude Agent SDK",value:1 }, { name:"OpenAI Agents SDK",value:1 }, { name:"LangChain",value:1 },
+      { name:"LangGraph",value:1 }, { name:"LlamaIndex",value:1 }, { name:"DSPy",value:1 }, { name:"MCP",value:1 }, { name:"n8n",value:1 }
+    ]},
+    { name:"Model Serving & MLOps", children:[
+      { name:"Ollama",value:1 }, { name:"vLLM",value:1 }, { name:"llama.cpp",value:1 }, { name:"LM Studio",value:1 },
+      { name:"OpenClaw",value:1 }, { name:"MLflow",value:1 }, { name:"LangSmith",value:1 }, { name:"Langfuse",value:1 }
     ]},
     { name:"Programming Languages", children:[
-      { name:"Python",value:1 }, { name:"Java",value:1 }, { name:"JavaScript",value:1 }, { name:"TypeScript",value:1 },
-      { name:"R",value:1 }, { name:"PHP",value:1 }
+      { name:"Python",value:1 }, { name:"TypeScript",value:1 }, { name:"JavaScript",value:1 }, { name:"R",value:1 },
+      { name:"C#",value:1 }, { name:"Java",value:1 }, { name:"SQL",value:1 }, { name:"PHP",value:1 },
+      { name:"HTML/CSS",value:1 }, { name:"Bash",value:1 }, { name:"PowerShell",value:1 }
     ]},
     { name:"Frameworks & Libraries", children:[
       { name:"Flask",value:1 }, { name:"FastAPI",value:1 }, { name:"GraphQL",value:1 }, { name:"D3.js",value:1 },
-      { name:"Vue.js",value:1 }, { name:"React.js",value:1 }, { name:"Spotipy",value:1 }, { name:"Plotly",value:1 },
-      { name:"Dash",value:1 }, { name:"Keras",value:1 }, { name:"PyTorch",value:1 }, { name:"TensorFlow",value:1 },
-      { name:"Scikit-learn",value:1 }, { name:"NumPy",value:1 }, { name:"pandas",value:1 }, { name:"SciPy",value:1 },
-      { name:"Seaborn",value:1 }, { name:"spaCy",value:1 }, { name:"OpenCV",value:1 }
+      { name:"Vue.js",value:1 }, { name:"React.js",value:1 }, { name:"Node.js",value:1 }, { name:"Spotipy",value:1 },
+      { name:"Plotly",value:1 }, { name:"Dash",value:1 }, { name:"Keras",value:1 }, { name:"PyTorch",value:1 },
+      { name:"TensorFlow",value:1 }, { name:"Hugging Face",value:1 }, { name:"scikit-learn",value:1 }, { name:"NumPy",value:1 },
+      { name:"pandas",value:1 }, { name:"SciPy",value:1 }, { name:"Matplotlib",value:1 }, { name:"Seaborn",value:1 },
+      { name:"spaCy",value:1 }, { name:"OpenCV",value:1 }, { name:"YOLO",value:1 }, { name:"Tesseract",value:1 }, { name:"Whisper",value:1 }
     ]},
     { name:"R Libraries", children:[
       { name:"RShiny",value:1 }, { name:"tidyverse",value:1 }, { name:"XGBoost",value:1 }, { name:"dplyr",value:1 },
@@ -333,18 +352,20 @@ const techStackData = {
       { name:"tidyr",value:1 }, { name:"tidymodels",value:1 }
     ]},
     { name:"APIs & Tools", children:[
-      { name:"Postman",value:1 }, { name:"Replicate",value:1 }, { name:"REST",value:1 }
+      { name:"Postman",value:1 }, { name:"REST",value:1 }
     ]},
     { name:"CI/CD & Automation", children:[
-      { name:"GitHub Actions",value:1 }, { name:"Jenkins",value:1 }, { name:"Bash",value:1 }, { name:"PowerShell",value:1 }
+      { name:"Git",value:1 }, { name:"GitHub Actions",value:1 }, { name:"Codacy",value:1 }, { name:"pytest",value:1 }, { name:"Jenkins",value:1 }
     ]},
     { name:"Databases & BI", children:[
-      { name:"SQL",value:1 }, { name:"MySQL",value:1 }, { name:"MongoDB",value:1 }, { name:"Tableau",value:1 },
-      { name:"PowerBI",value:1 }, { name:"SAP",value:1 }, { name:"UiPath",value:1 }
+      { name:"PostgreSQL",value:1 }, { name:"MariaDB",value:1 }, { name:"MySQL",value:1 }, { name:"Supabase",value:1 },
+      { name:"Snowflake",value:1 }, { name:"BigQuery",value:1 }, { name:"MongoDB",value:1 }, { name:"pgvector",value:1 },
+      { name:"FAISS",value:1 }, { name:"Neo4j",value:1 }, { name:"Tableau",value:1 }, { name:"PowerBI",value:1 },
+      { name:"SAP",value:1 }, { name:"UiPath",value:1 }
     ]},
     { name:"Modeling & Tools", children:[
       { name:"SysML",value:1 }, { name:"UML",value:1 }, { name:"DoDAF",value:1 }, { name:"UAF",value:1 },
-      { name:"UPDM",value:1 }, { name:"ZTA",value:1 }, { name:"Cameo",value:1 }, { name:"IBM DOORS",value:1 },
+      { name:"ZTA",value:1 }, { name:"Cameo",value:1 }, { name:"IBM DOORS",value:1 },
       { name:"MagicDraw",value:1 }, { name:"QGIS",value:1 }, { name:"ArcGIS",value:1 }, { name:"GeoPandas",value:1 }
     ]}
   ]
@@ -357,7 +378,7 @@ const conceptualColor = d3.scaleOrdinal()
 
 const techColor = d3.scaleOrdinal()
   .domain(techStackData.children.map(d => d.name))
-  .range(["#7f8c8d","#546e7a","#455a64","#37474f","#263238","#607d8b","#78909c","#90a4ae","#b0bec5","#546e7a"]);
+  .range(["#7f8c8d","#546e7a","#455a64","#37474f","#263238","#607d8b","#78909c","#90a4ae","#5d6d7e","#4a6572","#34495e","#6c7a89"]);
 
 function buildLegend(containerSelector, scale) {
   const wrap = d3.select(containerSelector);
