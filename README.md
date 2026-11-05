@@ -1,5 +1,5 @@
 # Leif Heaney's Interactive Bio
-### Last Updated: 2025-08-22
+### Last Updated: 2026-11-05
 ### https://leifheaney5.github.io/my-interactive-bio/
 
 An interactive biography showcasing skills and technology stack through D3.js sunburst visualizations.
@@ -22,6 +22,6 @@ An interactive biography showcasing skills and technology stack through D3.js su
 **Leif Heaney**  
 - Email: [leif@leifheaney.com](mailto:leif@leifheaney.com)  
 - LinkedIn: [linkedin.com/in/leifheaney](https://www.linkedin.com/in/leifheaney/)  
-- Website: [leifheaney.com](https://leifheaney.com)'
+- Website: [leifheaney.com](https://leifheaney.com)
 
 <img width="2560" height="1305" alt="2025_Leif_Heaney_Bio_Image" src="https://github.com/user-attachments/assets/af9199c8-13d5-4a0e-946d-52e1ec911ad2" />
